@@ -110,3 +110,23 @@ def compareFiles():
     unmatched_df.to_csv(config.DIFF_FILE_PATH, index=False)
     print(f"Saved unmatched rows to {config.DIFF_FILE_PATH}")
 
+def clean_csv(input_path, output_path):
+    # Load the CSV file
+    try:
+        # Handle potential encoding issues
+        df = pd.read_csv(input_path, encoding="ISO-8859-1", skipinitialspace=True)
+        
+        # Drop rows where the USERNAME column is empty
+        if 'USERNAME' in df.columns:
+            df = df[df['USERNAME'].notna() & (df['USERNAME'] != '')]
+        else:
+            print("The USERNAME column is missing or malformed.")
+            return
+        
+        # Save the cleaned DataFrame to a new file
+        df.to_csv(output_path, index=False)
+        print(f"Cleaned CSV saved to: {output_path}")
+    
+    except Exception as e:
+        print(f"Error: {e}")
+ 

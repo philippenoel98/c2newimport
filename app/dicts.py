@@ -27,6 +27,11 @@ entreprises =  {
     "CEA ST-THERESA": "CSS Du Littoral",
     "BLANC SABLON ST-THERESA": "CSS Du Littoral|St-theresa",
     "BUREAU DE SEPT-ILES": "CSS Du Littoral|Sept-Iles",
-    "BUREAU DE CHEVERY": "CSS Du Littoral|Chevery"
+    "BUREAU DE CHEVERY": "CSS Du Littoral|Chevery",
+    "Centre St-Bernard":"CSS Du Littoral|Education des Adultes",
+    "CEA St. Lawrence":"CSS Du Littoral|St-Lawrence",
+    "CEA St.Paul":"CSS Du Littoral|St-Paul",
+    "CEA St. Augustine":"CSS Du Littoral|St-Augustine",
+    "CEA Netagamiou":"CSS Du Littoral|Chevery",
 }
 
