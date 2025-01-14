@@ -85,12 +85,12 @@ def format_csv_c2(json_data, csv_filename, concat=False):
 
             writer.writerows(filtered_data)
 
-    print(f"CSV file '{output_csv}' fichier csv créé!")
+    
 
 
-def compareFiles():
-    c2Employes = pd.read_csv(config.C2_CLIENT_CSV)
-    gricsEmployes = pd.read_csv(config.EMPLOYE_GRICS_CSV)
+def compareFiles(first, second):
+    c2Employes = pd.read_csv(first)
+    gricsEmployes = pd.read_csv(second)
 
     c2Employes['before_at'] = c2Employes.iloc[:, 0].str.split('@').str[0]
     gricsEmployes['before_at'] = gricsEmployes.iloc[:, 0].str.split('@').str[0]

@@ -13,4 +13,7 @@ EMPLOYE_GRICS_CSV = "csv/employesGrics.csv"
 CLIENT_GRICS_CSV = "csv/clientsGrics.csv"
 C2_CLIENT_CSV = "csv/clients.csv"
 DIFF_FILE_PATH = "csv/differences.csv"
+TOUT_CLIENTS_CSV = "csv/toutClients.csv"
+TOUT_CLIENTS_CLEAN_CSV = "csv/toutClientsClean.csv"
+
 idOrganisationScolaire = 689000

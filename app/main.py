@@ -18,8 +18,8 @@ async def main():
     clean_csv(config.TOUT_CLIENTS_CSV, config.TOUT_CLIENTS_CLEAN_CSV)
        
     await getC2Clients()
-    compareFiles()
-    await import_to_c2()
+    compareFiles(config.C2_CLIENT_CSV, config.TOUT_CLIENTS_CLEAN_CSV)
+   # await import_to_c2()
 
   
 if __name__ == "__main__":
