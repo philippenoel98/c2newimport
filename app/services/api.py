@@ -6,12 +6,10 @@ import csv
 from app import config
 import aiohttp
 import asyncio
-
-
+from app.services.logger import logger
 
 load_dotenv()
 API_URL = f"{config.GET_EMPLOYE_URL}?pageSize=1000"
-
 
 token_url = config.TOKEN_URL
 client_id = os.getenv('CLIENT_ID')
@@ -35,20 +33,23 @@ async def getToken():
         access_token_response.raise_for_status()
 
         tokens = access_token_response.json()
-        set_env_variable('token',tokens["access_token"]
-)
+        set_env_variable('token', tokens["access_token"])
+        print("Token retrieved successfully.")
+        logger.info("Token retrieved successfully.")
         return tokens
     except requests.exceptions.RequestException as e:
-        print(f"Erreur lors de la récupération du token: {e}")
+        print(f"Error retrieving token: {e}")
+        logger.error(f"Error retrieving token: {e}")
         if access_token_response is not None:
             print("Response content:", access_token_response.text)
+            logger.error(f"Response content: {access_token_response.text}")
         exit(1)
 
 async def appelerEmployes():
     client_id = os.getenv('CLIENT_ID')
     token = await getToken()
     if not client_id:
-        raise ValueError("CLIENT_ID est introuvable")
+        raise ValueError("CLIENT_ID is missing")
 
     headers = {
         "Authorization": f"Bearer {token['access_token']}",
@@ -57,16 +58,19 @@ async def appelerEmployes():
     try:
         response = requests.get(API_URL, headers=headers)
         response.raise_for_status()        
+        print("Employee API call successful.")
+        logger.info("Employee API call successful.")
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error while making API call: {e}")
+        print(f"Error making API call: {e}")
+        logger.error(f"Error making API call: {e}")
         exit()
 
 async def appelerClient(url):
     client_id = os.getenv('CLIENT_ID')
     token = await getToken()
     if not client_id:
-        raise ValueError("CLIENT_ID est introuvable")
+        raise ValueError("CLIENT_ID is missing")
 
     headers = {
         "Authorization": f"Bearer {token['access_token']}",
@@ -75,39 +79,42 @@ async def appelerClient(url):
     try:
         response = requests.get(url, headers=headers)
         response.raise_for_status()        
+        print("Client API call successful.")
+        logger.info("Client API call successful.")
         return response.json()
     except requests.exceptions.RequestException as e:
-        print(f"Error while making API call: {e}")
+        print(f"Error making API call: {e}")
+        logger.error(f"Error making API call: {e}")
         exit()
-    return
 
 async def appelerPlusieursClients(listeUrl=[]):
     client_id = os.getenv('CLIENT_ID')
     token = await getToken()
     if not client_id:
-        raise ValueError("CLIENT_ID est introuvable")
+        raise ValueError("CLIENT_ID is missing")
 
     headers = {
         "Authorization": f"Bearer {token['access_token']}",
         "X-IBM-Client-Id": client_id
     }
     try:
-        responses = []  # Initialize an empty list to store the responses
+        responses = []  
         async with aiohttp.ClientSession() as session:
             for url in listeUrl:
                 async with session.get(url, headers=headers) as response:
-                    response.raise_for_status()  # Raise an exception for HTTP errors
-                    json_response = await response.json()  # Await the response JSON
-                    responses.append(json_response)  # Append to the list
+                    response.raise_for_status()  
+                    json_response = await response.json()  
+                    responses.append(json_response)  
 
+        print("Multiple client API calls successful.")
+        logger.info("Multiple client API calls successful.")
         return responses  # Return the collected responses
-    except aiohttp.ClientError as e:  # Handle aiohttp-specific exceptions
-        print(f"Error while making API call: {e}")
+    except aiohttp.ClientError as e:  
+        print(f"Error making multiple API calls: {e}")
+        logger.error(f"Error making multiple API calls: {e}")
         exit()
-    return
 
 async def getC2Clients():
-
     api_url = config.GET_C2_CLIENTS_URL
     headers = {
         "Accept": "*/*",
@@ -126,25 +133,26 @@ async def getC2Clients():
         "Password": password
     }
 
-    response = requests.post(api_url, headers=headers, json=body)
-    response.raise_for_status() 
-    data = response.json().get('Data')
-    emails = [record.get("EmailAddress") for record in data if "EmailAddress" in record]
-
     try:
+        response = requests.post(api_url, headers=headers, json=body)
+        response.raise_for_status() 
+        data = response.json().get('Data')
+        emails = [record.get("EmailAddress") for record in data if "EmailAddress" in record]
+
         with open(config.C2_CLIENT_CSV, mode="w", newline="") as csv_file:
             writer = csv.writer(csv_file)
             writer.writerow(["EmailAddress"])
             for email in emails:
                 writer.writerow([email])
+
+        print(f"C2 clients saved to CSV: {config.C2_CLIENT_CSV}")
+        logger.info(f"C2 clients saved to CSV: {config.C2_CLIENT_CSV}")
+        return response.json().get('Data')
     except Exception as e:
-        print(f"Une erreur est survenue lors de la sauvegarde du csv: {e}")
-
-    return response.json().get('Data')
-
+        print(f"Error saving C2 clients to CSV: {e}")
+        logger.error(f"Error saving C2 clients to CSV: {e}")
 
 async def import_to_c2():
-
     url = config.IMPORT_TO_C2_URL
     file_path = config.DIFF_FILE_PATH
     delimiter = ','
@@ -176,17 +184,16 @@ async def import_to_c2():
             response = requests.post(url, files=files, data=data, timeout=5000)
 
             if response.ok:
-                print(f"Success: {response.status_code}")
+                print(f"Import success: {response.status_code}")
                 print(response.text)
+                logger.info(f"Import success: {response.status_code}, Response: {response.text}")
             else:
-                print(f"Error: {response.status_code}")
+                print(f"Import failed: {response.status_code}")
                 print(response.text)
+                logger.error(f"Import failed: {response.status_code}, Response: {response.text}")
     except requests.exceptions.RequestException as e:
-        print(f"Request failed: {e}")
+        print(f"Request failed during import: {e}")
+        logger.error(f"Request failed during import: {e}")
     finally:
-        print("Importation complète")
-
-
-
-
-
+        print("Importation completed.")
+        logger.info("Importation completed.")
