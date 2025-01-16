@@ -7,6 +7,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
 import datetime
+import os
+import glob
 
 
 # Configure logging
@@ -22,9 +24,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 def generate_report():
+
+    report_pattern = "reports/report_*.txt"
+    
+    for file in glob.glob(report_pattern):  # Matches all files starting with "report_"
+        os.remove(file)
+
     current_datetime = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    report_file = f"report_{current_datetime}.txt"
+    report_file = f"reports/report_{current_datetime}.txt"
     
     try:
         with open(report_file, "w") as file:
